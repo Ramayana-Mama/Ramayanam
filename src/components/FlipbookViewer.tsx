@@ -13,11 +13,8 @@ import {
   X
 } from 'lucide-react';
 
-// Set worker using Vite's local static asset import
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
+// Reliable CDN worker for production deployments (Netlify/GH Pages)
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // External Sound Instance
 // using import.meta.env.BASE_URL ensures it works on GH Pages correctly.
