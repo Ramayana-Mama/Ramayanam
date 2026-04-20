@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FlipbookViewer } from './components/FlipbookViewer';
 import { BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -45,7 +45,29 @@ const KANDAMS = [
 export default function App() {
   const [activeDoc, setActiveDoc] = useState<{title: string, url: string} | null>(null);
 
-  const handleClose = () => setActiveDoc(null);
+  useEffect(() => {
+    const handleHashChange = () => {
+      // If the back button is pressed and clears the #viewer hash, close the document
+      if (window.location.hash !== '#viewer' && activeDoc) {
+        setActiveDoc(null);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [activeDoc]);
+
+  const handleOpen = (kandam: any) => {
+    setActiveDoc(kandam);
+    window.location.hash = 'viewer';
+  };
+
+  const handleClose = () => {
+    if (window.location.hash === '#viewer') {
+      window.history.back(); // This triggers hashchange listener to null the doc gracefully
+    } else {
+      setActiveDoc(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50 text-neutral-900 font-sans selection:bg-indigo-500/30 overflow-x-hidden">
@@ -98,7 +120,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + index * 0.1 }}
-                    onClick={() => setActiveDoc(kandam)}
+                    onClick={() => handleOpen(kandam)}
                     className="group flex flex-col items-start gap-2 p-5 bg-white border border-neutral-200 hover:border-indigo-500/50 rounded-lg text-left transition-all hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md hover:shadow-xl"
                   >
                     <div className="text-3xl font-serif font-black text-neutral-200 group-hover:text-indigo-600/20 transition-colors">
