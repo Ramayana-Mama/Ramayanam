@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect, forwardRef, useCallback } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { pdfjs } from 'react-pdf';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ChevronLeft, 
@@ -13,8 +14,8 @@ import {
   X
 } from 'lucide-react';
 
-// Reliable CDN worker for production deployments (Netlify/GH Pages)
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Reliable local worker integration for Vite deployments
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 // External Sound Instance
 // using import.meta.env.BASE_URL ensures it works on GH Pages correctly.
