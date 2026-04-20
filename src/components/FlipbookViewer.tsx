@@ -19,13 +19,22 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 // External Sound Instance
-const flipSound = new Audio('/page-flip.mp3');
+// using import.meta.env.BASE_URL ensures it works on GH Pages correctly.
+const soundPath = import.meta.env.BASE_URL + 'page-flip.mp3';
+const flipSound = new Audio(soundPath);
 flipSound.volume = 0.5;
+flipSound.preload = 'auto'; // ensure fast responses
+
 const playFlipSound = () => {
   try {
-    flipSound.currentTime = 0;
-    flipSound.play().catch(() => {});
-  } catch(e) {}
+    const soundClone = flipSound.cloneNode() as HTMLAudioElement;
+    soundClone.volume = 0.5;
+    soundClone.play().catch((err) => {
+      console.warn("Audio play blocked or failed:", err, "Path:", soundPath);
+    });
+  } catch(e) {
+    console.error("Audio error catch:", e);
+  }
 };
 
 // Global cache to persist images across navigation but free memory when needed
@@ -246,27 +255,27 @@ export function FlipbookViewer({ document: doc, onClose }: FlipbookViewerProps) 
   return (
     <div 
       ref={containerRef}
-      className="fixed inset-0 flex flex-col w-full h-full overflow-hidden bg-neutral-800 font-sans text-neutral-200 z-50"
+      className="fixed inset-0 flex flex-col w-full h-full overflow-hidden bg-neutral-100 font-sans text-neutral-900 z-50"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.4)_100%)] pointer-events-none z-0"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.1)_100%)] pointer-events-none z-0"></div>
 
       {/* Top Bar Navigation */}
-      <header className="absolute top-0 inset-x-0 h-14 bg-neutral-900 border-b border-white/10 flex items-center justify-between px-4 sm:px-6 z-50 shadow-lg">
+      <header className="absolute top-0 inset-x-0 h-14 bg-white/90 backdrop-blur-md border-b border-neutral-200 flex items-center justify-between px-4 sm:px-6 z-50 shadow-sm">
         <div className="flex items-center space-x-3 sm:space-x-4">
           <button 
             onClick={onClose}
             title="Back to Home"
-            className="w-8 h-8 rounded-full overflow-hidden border border-white/20 flex-shrink-0 bg-neutral-800 transition-all hover:scale-110 hover:ring-2 hover:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            className="w-8 h-8 rounded-full overflow-hidden border border-neutral-300 flex-shrink-0 bg-neutral-100 transition-all hover:scale-110 hover:ring-2 hover:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-sm"
           >
             <img 
-              src="/Ramayana-Mama.webp" 
+              src="./Ramayana-Mama.webp" 
               alt="RM" 
               referrerPolicy="strict-origin"
               className="w-full h-full object-cover"
             />
           </button>
           <div className="flex flex-col">
-            <h1 className="text-sm font-semibold tracking-tight text-white truncate max-w-[150px] sm:max-w-xs">{doc.title}</h1>
+            <h1 className="text-sm font-semibold tracking-tight text-neutral-900 truncate max-w-[150px] sm:max-w-xs">{doc.title}</h1>
             <p className="text-[9px] sm:text-[10px] text-neutral-500 uppercase tracking-widest hidden sm:block">Ramayana Mama Edition</p>
           </div>
         </div>
@@ -274,7 +283,7 @@ export function FlipbookViewer({ document: doc, onClose }: FlipbookViewerProps) 
         <div className="flex items-center space-x-6">
           <button 
             onClick={onClose}
-            className="flex items-center space-x-2 opacity-70 hover:opacity-100 text-xs font-medium text-white transition-opacity"
+            className="flex items-center space-x-2 text-neutral-600 hover:text-neutral-900 text-xs font-medium transition-colors"
           >
             <X size={14} />
             <span>Close</span>
@@ -290,13 +299,13 @@ export function FlipbookViewer({ document: doc, onClose }: FlipbookViewerProps) 
       >
         <div className={`inline-flex min-w-full min-h-full items-center justify-center ${scale > 1 ? 'p-2 sm:p-8 pt-20 pb-48' : 'p-2 sm:p-4 pb-20 sm:pb-4'}`}>
           {loading && (
-            <div className="flex flex-col items-center justify-center text-white/50 gap-4 mt-20">
-              <div className="w-10 h-10 border-4 border-white/20 border-t-white/80 rounded-full animate-spin" />
+            <div className="flex flex-col items-center justify-center text-neutral-500 gap-4 mt-20">
+              <div className="w-10 h-10 border-4 border-neutral-200 border-t-indigo-500 rounded-full animate-spin" />
               <p className="tracking-wide text-sm font-medium">Parsing Document...</p>
             </div>
           )}
           {error && (
-            <div className="p-6 bg-red-500/10 text-red-400 rounded-lg max-w-md text-center border border-red-500/20 backdrop-blur-md mt-20">
+            <div className="p-6 bg-red-50 text-red-600 rounded-lg max-w-md text-center border border-red-200 shadow-sm mt-20">
               <h3 className="text-lg font-bold mb-2">Error Loading PDF</h3>
               <p className="text-sm">Please ensure the document URL is valid and accessible.</p>
             </div>
@@ -391,7 +400,7 @@ export function FlipbookViewer({ document: doc, onClose }: FlipbookViewerProps) 
               input[type=range]::-moz-range-thumb:hover { transform: scale(1.2); }
             `}</style>
             
-            <div className="bg-neutral-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] p-3 sm:p-4 flex flex-col items-center space-y-3 pointer-events-auto w-[calc(100vw-16px)] sm:w-auto sm:min-w-[420px] max-w-lg">
+            <div className="bg-white/95 backdrop-blur-xl border border-neutral-200 rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] p-3 sm:p-4 flex flex-col items-center space-y-3 pointer-events-auto w-[calc(100vw-16px)] sm:w-auto sm:min-w-[420px] max-w-lg">
               <div className="flex items-center space-x-4 w-full px-2">
                  <span className="text-[10px] font-mono text-neutral-500">01</span>
                  <div className="flex-1 relative flex items-center">
@@ -406,9 +415,9 @@ export function FlipbookViewer({ document: doc, onClose }: FlipbookViewerProps) 
                           flipBookRef.current.pageFlip().flip(newPage - 1);
                         }
                       }}
-                      className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer focus:outline-none transition-all"
+                      className="w-full h-1.5 bg-neutral-200 rounded-full appearance-none cursor-pointer focus:outline-none transition-all"
                       style={{
-                        background: `linear-gradient(to right, #4f46e5 ${numPages > 1 ? ((currentPage - 1) / (numPages - 1)) * 100 : 0}%, rgba(255,255,255,0.05) ${numPages > 1 ? ((currentPage - 1) / (numPages - 1)) * 100 : 0}%)`
+                        background: `linear-gradient(to right, #4f46e5 ${numPages > 1 ? ((currentPage - 1) / (numPages - 1)) * 100 : 0}%, #e5e5e5 ${numPages > 1 ? ((currentPage - 1) / (numPages - 1)) * 100 : 0}%)`
                       }}
                     />
                  </div>
@@ -420,40 +429,40 @@ export function FlipbookViewer({ document: doc, onClose }: FlipbookViewerProps) 
                   <button 
                     onClick={handleZoomOut}
                     disabled={scale <= 1}
-                    className="p-1.5 sm:p-1 text-neutral-400 hover:text-white disabled:opacity-30 transition-colors"
+                    className="p-1.5 sm:p-1 text-neutral-500 hover:text-indigo-600 disabled:opacity-30 transition-colors"
                     title="Zoom Out"
                   >
                     <ZoomOut size={16} />
                   </button>
                   <button
                     onClick={() => setScale(1)}
-                    className="text-xs font-bold text-white w-8 sm:w-10 text-center hover:text-indigo-400 transition-colors"
+                    className="text-xs font-bold text-neutral-800 w-8 sm:w-10 text-center hover:text-indigo-600 transition-colors"
                     title="Reset Zoom to 100%"
                   >
                     {Math.round(scale * 100)}%
                   </button>
                   <button 
                     onClick={handleZoomIn}
-                    className="p-1.5 sm:p-1 text-neutral-400 hover:text-white transition-colors"
+                    className="p-1.5 sm:p-1 text-neutral-500 hover:text-indigo-600 transition-colors"
                     title="Zoom In"
                   >
                     <ZoomIn size={16} />
                   </button>
                 </div>
 
-                <div className="h-4 w-[1px] bg-white/10"></div>
+                <div className="h-4 w-[1px] bg-neutral-200"></div>
 
                 <div className="flex items-center space-x-2 sm:space-x-4">
                   <button 
                     onClick={prevButtonClick}
                     disabled={currentPage === 1}
-                    className="p-1.5 sm:p-1 text-neutral-400 hover:text-white disabled:opacity-30 transition-colors"
+                    className="p-1.5 sm:p-1 text-neutral-500 hover:text-indigo-600 disabled:opacity-30 transition-colors"
                   >
                     <ChevronLeft size={20} />
                   </button>
 
                   <div className="flex items-center space-x-1 sm:space-x-2 text-[10px] sm:text-xs font-medium">
-                    <div className="w-7 h-6 sm:w-8 sm:h-6 bg-white/5 border border-white/10 rounded flex items-center justify-center text-indigo-400 font-mono">
+                    <div className="w-7 h-6 sm:w-8 sm:h-6 bg-neutral-100 border border-neutral-200 rounded flex items-center justify-center text-indigo-600 font-mono shadow-inner text-xs">
                       {currentPage}
                     </div>
                     <span className="text-neutral-500 font-mono whitespace-nowrap">OF {numPages}</span>
@@ -462,17 +471,17 @@ export function FlipbookViewer({ document: doc, onClose }: FlipbookViewerProps) 
                   <button 
                     onClick={nextButtonClick}
                     disabled={currentPage === numPages}
-                    className="p-1.5 sm:p-1 text-neutral-400 hover:text-white disabled:opacity-30 transition-colors"
+                    className="p-1.5 sm:p-1 text-neutral-500 hover:text-indigo-600 disabled:opacity-30 transition-colors"
                   >
                     <ChevronRight size={20} />
                   </button>
                 </div>
 
-                <div className="h-4 w-[1px] bg-white/10 hidden sm:block"></div>
+                <div className="h-4 w-[1px] bg-neutral-200 hidden sm:block"></div>
 
                 <button 
                   onClick={toggleFullscreen}
-                  className="p-1.5 sm:p-1 text-neutral-400 hover:text-white transition-colors hidden sm:block"
+                  className="p-1.5 sm:p-1 text-neutral-500 hover:text-indigo-600 transition-colors hidden sm:block"
                   title="Toggle Fullscreen"
                 >
                   {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
