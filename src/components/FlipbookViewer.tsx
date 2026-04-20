@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import React, { useState, useRef, useEffect, forwardRef, useCallback } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { pdfjs } from 'react-pdf';
