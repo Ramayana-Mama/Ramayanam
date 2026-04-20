@@ -253,14 +253,18 @@ export function FlipbookViewer({ document: doc, onClose }: FlipbookViewerProps) 
       {/* Top Bar Navigation */}
       <header className="absolute top-0 inset-x-0 h-14 bg-neutral-900 border-b border-white/10 flex items-center justify-between px-4 sm:px-6 z-50 shadow-lg">
         <div className="flex items-center space-x-3 sm:space-x-4">
-          <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 flex-shrink-0 bg-neutral-800">
+          <button 
+            onClick={onClose}
+            title="Back to Home"
+            className="w-8 h-8 rounded-full overflow-hidden border border-white/20 flex-shrink-0 bg-neutral-800 transition-all hover:scale-110 hover:ring-2 hover:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+          >
             <img 
               src="/Ramayana-Mama.webp" 
               alt="RM" 
               referrerPolicy="strict-origin"
               className="w-full h-full object-cover"
             />
-          </div>
+          </button>
           <div className="flex flex-col">
             <h1 className="text-sm font-semibold tracking-tight text-white truncate max-w-[150px] sm:max-w-xs">{doc.title}</h1>
             <p className="text-[9px] sm:text-[10px] text-neutral-500 uppercase tracking-widest hidden sm:block">Ramayana Mama Edition</p>
